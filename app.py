@@ -27,7 +27,7 @@ def upload():
         """
 
         response = openai.ChatCompletion.create(
-            model="gpt-4",
+            model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": "You generate investment memos for real estate investors."},
                 {"role": "user", "content": prompt}
