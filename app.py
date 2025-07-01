@@ -9,33 +9,40 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    try:
+        return render_template('index.html')
+    except Exception as e:
+        return f"Template load error: {e}", 500
 
 @app.route('/upload', methods=['POST'])
 def upload():
-    file = request.files['property_data']
-    data = json.load(file)
+    try:
+        file = request.files['property_data']
+        data = json.load(file)
 
-    prompt = f"""
-    You are a real estate analyst at Properlytics. Based on the following property data, generate a professional 2-page investment memo:
+        prompt = f"""
+        You are a real estate analyst at Properlytics. Based on the following property data, generate a professional 2-page investment memo:
 
-    {data}
-    """
+        {data}
+        """
 
-    response = openai.ChatCompletion.create(
-        model="gpt-4",
-        messages=[
-            {"role": "system", "content": "You generate investment memos for real estate investors."},
-            {"role": "user", "content": prompt}
-        ],
-        temperature=0.7
-    )
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "You generate investment memos for real estate investors."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.7
+        )
 
-    memo_text = response.choices[0].message.content
-    with open("investment_memo.txt", "w") as f:
-        f.write(memo_text)
+        memo_text = response.choices[0].message.content
+        with open("investment_memo.txt", "w") as f:
+            f.write(memo_text)
 
-    return send_file("investment_memo.txt", as_attachment=True)
+        return send_file("investment_memo.txt", as_attachment=True)
+
+    except Exception as e:
+        return f"Something went wrong: {e}", 500
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
